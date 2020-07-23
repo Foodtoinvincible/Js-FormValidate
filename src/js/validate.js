@@ -297,6 +297,9 @@ class Validate {
             case 'number':
                 result = /^([-|+]?\d+|[-|+]?\d+\.\d+)$/.test(value + '');
                 break;
+            case 'alpha':
+                result = !/^[^a-zA-z]$/.test(value);
+                break;
             case 'alphaNum':
                 result = !/^[^a-zA-z0-9]$/.test(value);
                 break;

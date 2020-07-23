@@ -34,6 +34,7 @@ npm run example 生成示例文件
 | boolean | 是否为布尔 | bool | boolean |
 | number | 是否为数字 | | number |
 | alphaNum | 是否为字母和数字 | | alphaNum |
+| alpha | 是否为纯字母 | | alpha |
 | array | 是否为数组 | | array |
 | object | 是否为对象 | | object |
 | function | 是否为函数 | func | function |
