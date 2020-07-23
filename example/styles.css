@@ -1,0 +1,559 @@
+
+.message{
+
+    width: 100%;
+    height: 0;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    z-index: 20000;
+    padding: 0 15px;
+    top: 0;
+    font-size: 14px;
+    text-align: center;
+}
+.message.message-model{
+    height: 100% !important;
+}
+.message.message-mask{
+    height: 100%;
+    background-color: rgba(0,0,0,0.2);
+}
+
+.message > .message-item.auto-width{
+    width: 520px;
+    max-width: 520px;
+}
+.message > .message-item{
+    opacity: 0;
+    display: flex;
+    max-width: 260px;
+    min-height: 37px;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+    border: 1px solid #dcdee2;
+    background-color: transparent;
+    border-radius: 5px;
+    flex-direction: column;
+    text-align: center;
+}
+.message .message-item .message-prompt{
+    display: flex;
+    flex-direction: row;
+    padding: 8px 14px;
+}
+
+.message .message-item .message-header{
+    display: flex;
+    font-size: 16px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+}
+.message .message-item .message-footer {
+    padding: 14px 16px;
+    margin-top: 5px;
+    border-top: 1px solid #eee;
+    text-align: right;
+}
+.message .message-item .message-footer button{
+    line-height: 1;
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    height: 30px;
+    padding: 0 15px;
+    font-size: 14px;
+    border-radius: 4px;
+    margin-bottom: 0;
+}
+.message .message-item .message-footer button:after {
+    display: none;
+    transition: color ease 0.3s;
+}
+.message .message-item .message-footer button.confirm{
+    margin-left: 8px;
+    color: #fff;
+    background-color: #2d8cf0;
+    border: 1px solid #2d8cf0;
+}
+.message .message-item .message-footer button.cancel {
+    background: transparent;
+    border: none;
+}
+.message .message-item .message-footer button.confirm:hover{
+    color: #e9e9e9;
+}
+.message .message-item .message-footer button.cancel:hover{
+    color: #2d8cf0;
+}
+.message .message-item .message-header + .message-prompt{
+    min-height: 50px;
+
+}
+.message .message-item .hide{
+    color: #ccc !important;
+    font-weight: 300;
+    padding-left: 15px;
+    width: 35px;
+}
+.message .message-item  .hide i{
+    cursor: pointer !important;
+}
+.message .message-item .icon{
+    margin-right: 4px;
+    font-size: 16px;
+    width: 12px;
+}
+.message .message-item .icon.info{
+    color: #2d8cf0;
+}
+.message .message-item .icon.error{
+    color: #ed4014;
+}
+.message .message-item .icon.success {
+    color: #19be6b;
+}
+.message .message-item .icon.warning {
+    color: #ff9900;
+}
+.message .message-item.background{
+    box-shadow: none !important;
+}
+.message .message-item.bg-info {
+    background-color: #f0faff !important;
+    color: #2d8cf0;
+    border: 1px solid #d4eeff;
+}
+.message .message-item.bg-error {
+    background-color: #ffefe6 !important;
+    color: #ed4014;
+    border: 1px solid #ffcfb8;
+}
+.message .message-item.bg-success {
+    background-color: #edfff3 !important;
+    color: #19be6b;
+    border: 1px solid #bbf2cf;
+}
+.message .message-item.bg-warning {
+    background-color: #fff9e6 !important;
+    color: #ff9900;
+    border: 1px solid #ffe7a3;
+}
+.message .message-item .message-body{
+    flex-wrap: wrap;
+    letter-spacing: 1px;
+    text-decoration: none;
+    width: 100%;
+    text-align: left;
+}
+
+
+
+/************************位置 与动画********************/
+.message .message-item.top{
+    margin: 15px auto 0 auto;
+    animation-name: MsgTop;
+}
+.message .message-item.top.remove{
+    animation-name: MsgTopExit;
+}
+.message .message-item.left{
+    margin-top: 15px;
+    margin-left: 15px;
+    animation-name: MsgLeft;
+}
+.message .message-item.left.remove {
+    animation-name: MsgLeftExit;
+}
+.message .message-item.right{
+    margin-right: 15px;
+    margin-top: 15px;
+    margin-left: auto;
+    animation-name: MsgRight;
+}
+.message .message-item.right.remove{
+    animation-name: MsgRightExit;
+}
+
+.message .message-item.center{
+    left: 50%;
+    margin-top: 15px;
+    position: relative;
+    animation-name: MsgCenter;
+    transform: translateX(-50%);
+}
+.message .message-item.center.remove{
+    animation-name: MsgCenterExit;
+}
+.message .message-item.bottom{
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 1;
+}
+.message .message-item.left-bottom{
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    opacity: 1;
+}
+.message .message-item.bottom,.message .message-item.left-bottom,.message.message-item.right-bottom{
+    animation-name: MsgBottom;
+}
+.message .message-item.left-bottom.remove,.message .message-item.bottom.remove,.message .message-item.right-bottom{
+    animation-name: MsgBottomExit;
+}
+.message .message-item.right-bottom{
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+}
+.message .message-item.left-center{
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.message .message-item.right-center{
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+
+
+@media screen and (max-width: 768px) {
+
+    .message .message-item.auto-width{
+        width: calc(100% - 30px);
+        max-width: calc(100% - 30px);
+    }
+    .message .message-item{
+        border-radius: 5px !important;
+    }
+}
+
+@keyframes MsgBottom {
+    0%{
+        opacity: 0;
+        bottom: -100%;
+    }
+    100%{
+        opacity: 1;
+        bottom: 15px;
+    }
+}
+@keyframes MsgBottomExit {
+    0%{
+        opacity: 1;
+        bottom: 15px;
+    }
+    100%{
+        opacity: 0;
+        bottom: -100%;
+    }
+}
+@keyframes MsgLeft {
+    0%{
+        opacity: 0;
+        margin-left: -100%;
+    }
+    100%{
+        opacity: 1;
+        margin-left: 15px;
+    }
+}
+@keyframes MsgLeftExit {
+    0%{
+        opacity: 1;
+        margin-left: 15px;
+    }
+    100%{
+        opacity: 0;
+        margin-left: -100%;
+    }
+}
+
+@keyframes MsgRight {
+    0%{
+        opacity: 0;
+        margin-right: -100%;
+    }
+    100%{
+        opacity: 1;
+        margin-right: 15px;
+        /*margin-right: 15px;*/
+    }
+}
+@keyframes MsgRightExit {
+    0%{
+        opacity: 1;
+        margin-right: 15px;
+    }
+    100%{
+        opacity: 0;
+        margin-right: -100%;
+    }
+}
+
+@keyframes MsgTop {
+    0%{
+        margin-top: -100%;
+        opacity: 0;
+    }
+    100%{
+        margin-top: 15px;
+        opacity: 1;
+    }
+}
+@keyframes MsgTopExit {
+    0%{
+        opacity: 1;
+        margin-top: 15px;
+    }
+    100%{
+        opacity: 0;
+        margin-top: -100%;
+    }
+}
+
+@keyframes MsgCenter {
+    0%{
+        opacity: 0;
+        margin-top: 0;
+        transform: translateY(-100%) translateX(-50%);
+    }
+    100%{
+        opacity: 1;
+        transform: translateY(0) translateX(-50%);
+        margin-top: 15px;
+    }
+}
+@keyframes MsgCenterExit {
+    0%{
+        opacity: 1;
+        margin-top: 15px;
+        transform: translateY(0) translateX(-50%);
+    }
+    100%{
+        opacity: 0;
+        margin-top: 0;
+        transform: translateY(-100%) translateX(-50%);
+    }
+}
+*{
+    outline: none;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+html,body{
+    height: 100%;
+}
+body{
+    color: #555;
+}
+.container{
+    padding: 15px;
+}
+
+.form{
+
+}
+.form-button{
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid #dcdee2;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    height: 32px;
+    padding: 0 15px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: color .2s linear,background-color .2s linear,border .2s linear,box-shadow .2s linear;
+    color: #515a6e;
+    background-color: #fff;
+}
+
+.form-item{
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.form-label{
+    display: block;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.form-input{
+    display: inline-block;
+    width: 100%;
+    height: 32px;
+    line-height: 1.5;
+    padding: 4px 7px;
+    font-size: 14px;
+    border: 1px solid #dcdee2;
+    border-radius: 4px;
+    color: #515a6e;
+    background-color: #fff;
+    background-image: none;
+    position: relative;
+    cursor: text;
+    transition: border .2s ease-in-out,background .2s ease-in-out,box-shadow .2s ease-in-out;
+}
+.form-input:focus, .form-input:hover {
+    border-color: #57a3f3;
+}
+.form-input.form-item-check-error{
+    border-color: red;
+
+}
+.form-item-check-error-msg{
+    color: red;
+}
+
+
+
+/*Switch*/
+.form-switch-button{
+    font-size: 0;
+    position: relative;
+    box-sizing: content-box;
+    display: block;
+    border: 2px solid #dcdee2;
+    width: 44px;
+    height: 22px;
+    cursor: pointer;
+    vertical-align: middle;
+    background-color: transparent;
+    transition: all 0.2s ease-in-out;
+    border-radius: 20px;
+}
+.form-switch-button .switch-line .yes,.form-switch-button .switch-line .no{
+    position: absolute;
+    display: inline-block;
+    transition: all 0.2s ease-in-out;
+    font-size: 12px;
+    top: 50%;
+    line-height: 0;
+    transform: translateY(-50%);
+    opacity: 1;
+}
+.form-switch-button .switch-line .yes {
+    left: 6px;
+    opacity: 0;
+}
+.form-switch-button .switch-line .no {
+    left: 28px;
+}
+.form-switch-button .switch-button{
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 2px;
+    top: 2px;
+    z-index: 2;
+    overflow: hidden;
+    background-color: #555;
+    border-radius: 45px;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #555;
+}
+/*选中*/
+.form-switch-button.checked .switch-line .yes{
+    opacity: 1;
+}
+.form-switch-button.checked .switch-line .no{
+    opacity: 0;
+}
+/*动画背景色*/
+.form-switch-button.checked {
+}
+.form-switch-button.checked{
+    border-color: #2db7f5;
+}
+.form-switch-button.checked .switch-button{
+    left: 24px;
+    background-color: #2db7f5;
+    border: 1px solid #2db7f5;
+
+}
+
+
+/*大号 Switch*/
+.form-switch-button.large{
+    width: 54px;
+    height: 27px;
+}
+.form-switch-button.large .switch-line .yes,.form-switch-button.large .switch-line .no{
+    font-size: 13px;
+}
+.form-switch-button.large .switch-line .yes {
+    left: 6px;
+}
+.form-switch-button.large .switch-line .no {
+    left: 34px;
+}
+.form-switch-button.large .switch-button{
+    width: 22px;
+    height: 22px;
+    left: 2px;
+}
+.form-switch-button.large.checked .switch-button{
+    left: 30px;
+}
+
+/*线条主题*/
+.form-switch-button.line{
+    background: transparent !important;
+}
+
+.form-switch-button.line .switch-button{
+    background: #dadada;
+}
+.form-switch-button.line .switch-line{
+    position: absolute;
+    height: 4px;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    width: calc(100% - 8px);
+    background: #dadada;
+}
+.form-switch-button.line.checked .switch-line{
+    background: #00b1ff;
+}
+
+.form-select{
+    cursor: pointer;
+}
+
+.form-textarea{
+    height: auto;
+}
+
+
+
+.red{
+    color: red;
+    font-style: normal;
+    margin-right: 5px;
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form Validate</title>
+<link href="/styles.css" rel="stylesheet"></head>
+<body>
+<div class="container">
+
+    <form id="form" action="javascript:void(0)">
+        <div class="form-item">
+            <label for="name" class="form-label"><i class="red">*</i> 名称</label>
+            <input class="form-input" id="name" type="text" name="name" data-verify-rule="require|length:1,50" data-msg='{"require":"请输入","length": "字符长度1-50"}' data-check-mode="blur" />
+        </div>
+        <div class="form-item">
+            <label for="private" class="form-label"><i class="red">*</i> 私密</label>
+            <input id="private" type="checkbox" data-verify-rule="has" data-msg='请选择' data-check-mode="change" name="private" class="form-switch" large="" yes="是" no="否">
+        </div>
+        <div class="form-item">
+            <label for="city" class="form-label"><i class="red">*</i> 城市</label>
+            <select class="form-select form-input" name="city" id="city">
+                <option value="">请选择</option>
+                <option value="北京">北京</option>
+                <option value="上海">上海</option>
+                <option value="南京">南京</option>
+                <option value="深圳">深圳</option>
+                <option value="广州">广州</option>
+            </select>
+        </div>
+        <div class="form-item">
+            <label for="note" class="form-label"><i class="red">*</i> 备注</label>
+            <textarea class="form-input form-textarea" rows="5" name="note"  id="note"></textarea>
+        </div>
+        <button class="form-button" type="submit">提交</button>
+    </form>
+
+</div>
+
+</html>
