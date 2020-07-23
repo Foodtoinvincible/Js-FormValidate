@@ -45,6 +45,7 @@ npm run example 生成示例文件
 | = | 等于 | eq | eq:3 |
 | < | 小于 | lt | lt:6 |
 | \> | 大于 | gt | gt:66 |
+| != | 不等于 | unequal，<> | unequal: 10 |
 | in | 在某个范围 | | in:1,2,3 |
 | notIn | 不在某个范围 | | notIn:a,b,c |
 | length | 长度是否在某个范围 | | length:1,50 或 length:5 |

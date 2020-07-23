@@ -25,7 +25,9 @@ class Validate {
             '>'  : 'gt',
             '='  : 'eq',
             '<'  : 'lt',
-            '<=' : 'lte'
+            '<=' : 'lte',
+            '!=' : 'unequal',
+            '<>' : 'unequal'
         };
     }
 
@@ -451,6 +453,18 @@ class Validate {
     lte(value,rule,data){
         return value <= this.getInputData(data,rule);
     }
+
+    /**
+     * 不等于
+     * @param value
+     * @param rule
+     * @param data
+     * @returns {boolean}
+     */
+    unequal(value,rule,data){
+        return value != this.getInputData(data,rule);
+    }
+
     /**
      * 验证是否在范围内
      * @param value
