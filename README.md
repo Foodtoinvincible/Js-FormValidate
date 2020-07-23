@@ -8,8 +8,8 @@
 | ./src/js/validate.js | 验证器 | 核心 |
 | ./src/js/formSwitch.js | 实现表单Switch组件 | 演示 |
 | ./src/js/message.js | 消息弹窗 | 演示 |
-| ./src/css/from.js | 表单样式 | 演示 |
-| ./src/css/message.js | 消息弹窗样式 | 演示 |
+| ./src/css/from.css | 表单样式 | 演示 |
+| ./src/css/message.css | 消息弹窗样式 | 演示 |
 
 
 ### 开始
