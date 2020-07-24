@@ -8,17 +8,26 @@
 <div class="container">
     <form id="form" action="javascript:void(0)">
         <div class="form-item">
-            <label for="name" class="form-label"><i class="red">*</i> 名称</label>
-            <input class="form-input" id="name" type="text" name="name" data-verify-rule="require|length:1,50" data-msg='{"require":"请输入","length": "字符长度1-50"}' data-check-mode="blur" />
+            <label for="require" class="form-label">必须验证</label>
+            <input class="form-input" id="require" type="text" name="require" data-verify-rule="require" data-msg='{"require":"请输入"}' data-check-mode="blur" />
         </div>
         <div class="form-item">
-            <label for="private" class="form-label"><i class="red">*</i> 私密</label>
-            <input id="private" type="checkbox" data-verify-rule="has" data-msg='请选择' data-check-mode="change" name="private" class="form-switch" large="" yes="是" no="否">
+            <label for="bool" class="form-label">bool 验证</label>
+            <input id="bool" type="checkbox" data-verify-rule="bool" data-msg='请选择' data-check-mode="change" name="bool" class="form-switch" large="" yes="是" no="否">
         </div>
         <div class="form-item">
-            <label for="city" class="form-label"><i class="red">*</i> 城市</label>
-            <select class="form-select form-input" name="city" id="city">
-                <option value="">请选择</option>
+            <label for="in" class="form-label">in 验证（只可选择北京）</label>
+            <select class="form-select form-input" name="in" id="in">
+                <option value="上海">上海</option>
+                <option value="北京">北京</option>
+                <option value="南京">南京</option>
+                <option value="深圳">深圳</option>
+                <option value="广州">广州</option>
+            </select>
+        </div>
+        <div class="form-item">
+            <label for="notIn" class="form-label">notIn 验证（除了北京）</label>
+            <select class="form-select form-input" name="notIn" id="notIn">
                 <option value="北京">北京</option>
                 <option value="上海">上海</option>
                 <option value="南京">南京</option>
@@ -27,8 +36,48 @@
             </select>
         </div>
         <div class="form-item">
-            <label for="note" class="form-label"><i class="red">*</i> 备注</label>
-            <textarea class="form-input form-textarea" rows="5" name="note"  id="note"></textarea>
+            <label for="chs" class="form-label">中文验证（chs）</label>
+            <textarea class="form-input form-textarea" rows="5" name="chs"  id="chs"></textarea>
+        </div>
+        <div class="form-item">
+            <label for="chsAlpha" class="form-label">中文+字母验证（chsAlpha）</label>
+            <textarea class="form-input form-textarea" rows="5" name="chsAlpha"  id="chsAlpha"></textarea>
+        </div>
+        <div class="form-item">
+            <label for="chsAlphaNum" class="form-label">中文+字母+数字验证（chsAlphaNum）</label>
+            <textarea class="form-input form-textarea" rows="5" name="chsAlphaNum"  id="chsAlphaNum"></textarea>
+        </div>
+        <div class="form-item">
+            <label for="length" class="form-label">长度验证（length）</label>
+            <textarea class="form-input form-textarea" rows="5" name="length"  id="length"></textarea>
+        </div>
+        <div class="form-item">
+            <label for="ipv4" class="form-label">ipv4验证</label>
+            <input class="form-input" id="ipv4" type="text" name="ipv4" />
+        </div>
+        <div class="form-item">
+            <label for="ipv6" class="form-label">ipv6验证</label>
+            <input class="form-input" id="ipv6" type="text" name="ipv6" />
+        </div>
+        <div class="form-item">
+            <label for="ip" class="form-label">ip验证 (ipv4 或 ipv6)</label>
+            <input class="form-input" id="ip" type="text" name="ip" />
+        </div>
+        <div class="form-item">
+            <label for="max" class="form-label">max验证</label>
+            <input class="form-input" id="max" type="text" name="max" />
+        </div>
+        <div class="form-item">
+            <label for="min" class="form-label">min验证</label>
+            <input class="form-input" id="min" type="text" name="min" />
+        </div>
+        <div class="form-item">
+            <label for="email" class="form-label">email验证</label>
+            <input class="form-input" id="email" type="text" name="email" />
+        </div>
+        <div class="form-item">
+            <label for="mobile" class="form-label">mobile验证</label>
+            <input class="form-input" id="mobile" type="text" name="mobile" />
         </div>
         <button class="form-button" type="submit">提交</button>
     </form>
