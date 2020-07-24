@@ -305,6 +305,18 @@ class Validate {
             case 'alphaNum':
                 result = !/^[^a-zA-z0-9]$/.test(value);
                 break;
+            case 'chs':
+                // 纯汉字
+                result = /^[\u4E00-\u9FA5]+$/.test(value);
+                break;
+            case 'chsAlpha':
+                // 汉字或字母或汉字+字母
+                result = !/[^\u4E00-\u9FA5a-zA-z]/.test(value);
+                break;
+            case 'chsAlphaNum':
+                // 汉字或字母或数字或汉字+字母+数字
+                result = !/[^\u4E00-\u9FA5a-zA-z0-9]/.test(value);
+                break;
             case 'array':
                 // 是否为数组
                 result = '[object array]' === Object.prototype.toString.call(value).toLocaleLowerCase();
@@ -335,7 +347,7 @@ class Validate {
                         result = this[rule](value,rule,data,field);
                         break;
                     case this._regx[rule] !== undefined:
-                        result = (typeof this._regx[rule] === 'string' ? new RegExp(this._regx[rule]) : this._regx[rule]).test(value);
+                        result = (typeof this._regx[rule] === 'string' ? new RegExp(this._regx[rule]).test(value) : this._regx[rule]).test(value);
                         break;
                     case this._type[rule] !== undefined:
                         result = this._type[rule](value,rule,data,field);
@@ -483,6 +495,38 @@ class Validate {
     notIn(value,rule){
         return !(rule instanceof Array ? this.inArray(rule,value) : this.inArray(rule.split(','),value));
     }
+
+    /**
+     * IPv6验证
+     * @param value
+     * @returns {*}
+     */
+    ipv6(value){
+        return /:/.test(value) &&
+            value.match(/:/g).length < 8 &&
+            /::/.test(value) ?
+            (value.match(/::/g).length === 1 && /^::$|^(::)?([\da-f]{1,4}(:|::))*[\da-f]{1,4}(:|::)?$/i.test(value))
+            : /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i.test(value);
+    }
+
+    /**
+     * IPv4验证
+     * @param value
+     * @returns {boolean}
+     */
+    ipv4(value){
+        return /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(value);
+    }
+
+    /**
+     * 验证IP 支持 ipv4、ipv6
+     * @param value
+     * @returns {boolean}
+     */
+    ip(value){
+        return this.ipv4(value) || this.ipv6(value);
+    }
+
     /**
      * 数据长度验证
      * @param {String|Array|Object|Number} value
@@ -500,22 +544,61 @@ class Validate {
 
     /**
      * 最大值验证
-     * @param {String|Array|Object|Number} value
+     * @param {Number} value
      * @param rule
      * @returns {boolean}
      */
     max(value,rule){
-        return this.getDataLength(value) < rule;
+        let ruleVal = this.strToNumber(rule);
+
+        if (ruleVal === false){
+            console.warn('Warning: Validate max rule value expect number given ' + this.getDataType(rule))
+        }
+        if (this.strToNumber(value) === false)
+            value = this.getDataLength(value);
+
+        return value <= ruleVal;
     }
 
     /**
      * 最小值验证
-     * @param {String|Array|Object|Number} value
+     * @param {Number} value
      * @param rule
      * @returns {boolean}
      */
     min(value,rule){
-        return this.getDataLength(value) > rule;
+        let ruleVal = this.strToNumber(rule);
+        if (ruleVal === false){
+            console.warn('Warning: Validate min rule value expect number given ' + this.getDataType(rule))
+        }
+        if (this.strToNumber(value) === false)
+            value = this.getDataLength(value);
+        return value >= ruleVal;
+    }
+
+    /**
+     * 字符串转Number 转换失败返回 false
+     * @param str
+     * @returns {boolean|number}
+     */
+    strToNumber(str){
+        let type = this.getDataType(str);
+        if (type !== 'string' && type !== 'number')
+            return false;
+        let val = Number(str);
+        if (val + '' === 'NaN'){
+            return false;
+        }
+        return val;
+    }
+    /**
+     * 获取数据类型
+     * @param value
+     * @returns {string}
+     */
+    getDataType(value){
+        let type = Object.prototype.toString.call(value).toLocaleLowerCase();
+        return type.replace(/[\[\]]/g,'').split(' ')[1];
     }
 
     /**
@@ -525,20 +608,21 @@ class Validate {
      */
     getDataLength(value){
         let len = 0;
-        switch (Object.prototype.toString.call(value).toLocaleLowerCase()) {
-            case '[object object':
-            case '[object array]':
+        let type = this.getDataType(value);
+        switch (type) {
+            case 'object':
+            case 'array':
                 for(let k in value)
                     if(value.hasOwnProperty(k)) len++;
                 break;
-            case '[object string]':
+            case 'string':
                 len = value.length;
                 break;
-            case '[object number]':
+            case 'number':
                 len = value;
                 break;
             default:
-                console.warn('Warning: Validate length rule function params 1 data type not support: ' + type);
+                console.warn('Warning: Validate get data length function params 1 data type not support: ' + type);
                 break;
         }
         return len;
