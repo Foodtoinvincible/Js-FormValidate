@@ -35,6 +35,9 @@ npm run example 生成示例文件
 | number | 是否为数字 | | number |
 | alphaNum | 是否为字母和数字 | | alphaNum |
 | alpha | 是否为纯字母 | | alpha |
+| chs | 是否为纯汉字 | | chs |
+| chsAlpha | 是否为汉字或字母或汉字 + 字母 | | chsAlpha |
+| chsAlphaNum | 是否为汉字或字母或数字或汉字 + 字母 + 数字 | | chsAlphaNum |
 | array | 是否为数组 | | array |
 | object | 是否为对象 | | object |
 | function | 是否为函数 | func | function |
@@ -53,5 +56,8 @@ npm run example 生成示例文件
 | min | 最小值 | | min:1 |
 | email | 邮箱 | | email | 
 | mobile | 手机号 | | mobile | 
+| ipv4 | ipv4 | | ipv4 | 
+| ipv6 | ipv6 | | ipv6 | 
+| ip | ipv4 或 ipv6 | | ip | 
 
 
