@@ -347,7 +347,7 @@ class Validate {
                         result = this[rule](value,rule,data,field);
                         break;
                     case this._regx[rule] !== undefined:
-                        result = (typeof this._regx[rule] === 'string' ? new RegExp(this._regx[rule]).test(value) : this._regx[rule]).test(value);
+                        result = typeof this._regx[rule] === 'string' ? new RegExp(this._regx[rule]).test(value) : this._regx[rule].test(value);
                         break;
                     case this._type[rule] !== undefined:
                         result = this._type[rule](value,rule,data,field);
