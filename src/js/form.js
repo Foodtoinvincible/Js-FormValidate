@@ -267,13 +267,13 @@ class Form{
      * @returns {boolean}
      */
     check(form,data){
-        let checkResult = true;
+        let valid = true;
         this.__getFormDom(form).forEach(elem =>{
-            if (elem.name){
-                checkResult = this.checkItem(elem,data);
+            if (elem.name && !this.checkItem(elem,data)){
+                valid = false;
             }
         });
-        return checkResult;
+        return valid;
     }
     /**
      * 效验元素项
