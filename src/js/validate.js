@@ -236,7 +236,8 @@ class Validate {
      * @private
      */
     getInputData(key,data){
-        if(key.indexOf('.') > 0){
+        key = key.toString();
+        if(key.indexOf('.') < 1){
             return data[key] ? data[key] :  null;
         }
         let name = key.split('.');
@@ -281,7 +282,7 @@ class Validate {
         switch (rule){
             case 'require':
                 // 必须
-                result = !this.empty(value) || '0' === value;
+                result = value === 0 || !this.empty(value);
                 break;
             case 'has':
                 // 存在
@@ -289,12 +290,12 @@ class Validate {
                 break;
             case 'accepted':
                 // 接受
-                result = this.inArray(['1', 'on', 'yes'],value);
+                result = this.inArray(['1', 'on', 'yes',1],value,true);
                 break;
             case 'boolean':
             case 'bool':
                 // 是否为布尔值
-                result = this.inArray([true, false, 0, 1, '0', '1'],value);
+                result = this.inArray([true, false, 0, 1, '0', '1'],value,true);
                 break;
             case 'number':
                 result = /^([-|+]?\d+|[-|+]?\d+\.\d+)$/.test(value + '');
@@ -407,11 +408,16 @@ class Validate {
      * 判断值是否在数组中存在
      * @param arr
      * @param e
+     * @param t   是否强类型
      * @returns {boolean}
      */
-    inArray(arr,e){
+    inArray(arr,e,t){
         for (let k in arr)
-            if (arr[k] == e) return true;
+            if (t){
+                if (arr[k] === e) return true;
+            }else{
+                if (arr[k] == e) return true;
+            }
         return false;
     }
 
@@ -503,8 +509,8 @@ class Validate {
      */
     ipv6(value){
         return /:/.test(value) &&
-            value.match(/:/g).length < 8 &&
-            /::/.test(value) ?
+        value.match(/:/g).length < 8 &&
+        /::/.test(value) ?
             (value.match(/::/g).length === 1 && /^::$|^(::)?([\da-f]{1,4}(:|::))*[\da-f]{1,4}(:|::)?$/i.test(value))
             : /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i.test(value);
     }
@@ -543,6 +549,22 @@ class Validate {
     }
 
     /**
+     * 范围
+     * @param {String|Array|Object|Number} value
+     * @param rule
+     * @returns {boolean|boolean}
+     */
+    between(value,rule){
+        let len = this.getDataLength(value);
+        if (typeof rule != 'string' || rule.indexOf(',') == -1){
+            console.warn('Warning: Validate between rule error');
+            return false;
+        }
+        let tmp = rule.split(',',2);
+        return len >= tmp[0] && len <= tmp[1];
+    }
+
+    /**
      * 最大值验证
      * @param {Number} value
      * @param rule
@@ -553,6 +575,7 @@ class Validate {
 
         if (ruleVal === false){
             console.warn('Warning: Validate max rule value expect number given ' + this.getDataType(rule))
+            return false;
         }
         if (this.strToNumber(value) === false)
             value = this.getDataLength(value);
