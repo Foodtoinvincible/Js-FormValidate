@@ -58,6 +58,8 @@ npm run example 生成示例文件
 | mobile | 手机号 | | mobile | 
 | ipv4 | ipv4 | | ipv4 | 
 | ipv6 | ipv6 | | ipv6 | 
-| ip | ipv4 或 ipv6 | | ip | 
+| ip | ipv4 或 ipv6 | | ip |
+| between | 范围/区间 | | between:10,500 |  
+
 
 
