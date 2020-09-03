@@ -51,11 +51,7 @@ class Form{
         }
 
         // 事件注册记录
-        this.eventRegister = {
-            submit: [],
-            change: [],
-            blur: [],
-        };
+        this.eventRegister = [];
 
         if (listen){
             this.bindEvent(this._form,'submit');
@@ -218,9 +214,10 @@ class Form{
     bindEvent(elem,name,fn= null){
 
         if (!fn) fn = this.eventHandler[name];
-        this.eventRegister[name].push({
+        this.eventRegister.push({
             elem: elem,
-            fn: fn
+            fn: fn,
+            type: name,
         });
         elem.addEventListener(name,fn);
     }
@@ -233,13 +230,22 @@ class Form{
         let mode = elem.getAttribute(this.conf.check_mode_attr);
         mode = mode ? mode : 'blur';
         if (mode){
-            if (mode.toLocaleLowerCase() === 'change'){
+            if (mode.toLocaleLowerCase() == 'change'){
                 this.bindEvent(elem,'change')
             }
-            if (mode.toLocaleLowerCase() === 'blur'){
+            if (mode.toLocaleLowerCase() == 'blur'){
                 this.bindEvent(elem,'blur')
             }
         }
+    }
+
+    /**
+     * 卸载所有事件
+     */
+    offAllEvent(){
+        this.eventRegister.forEach(item => {
+            item.elem.removeEventListener(item.type,item.fn);
+        });
     }
 
     /**
@@ -249,7 +255,7 @@ class Form{
     changeEvent(e) {
         let data = this.formData.get(this._form);
         this.checkItem(e.target,data);
-    };
+    }
 
     /**
      * 元素失去焦点触发检测
@@ -324,12 +330,20 @@ class Form{
      * @private
      */
     __getMsg(field,errorInfo,elem){
-        let rule = errorInfo.split(' ')[0];
-        if (this._message[field + '.' + rule]){
-            return this._message[field + '.' + rule];
-        }
         if (this._message[field])
             return this._message[field];
+
+        let rule = errorInfo.split(' ')[0];
+        for (let k in this._message){
+            if (this._message.hasOwnProperty(k)){
+                if (this._validate.inArray(k.toString().split(','),field) ||
+                    this._validate.inArray(k.toString().split(','),field + '.' + rule)){
+                    return this._message[k];
+                }
+            }
+        }
+
+
         let msg = elem.getAttribute(this.conf.msg_attr);
         // 判断是否为JSON
         if (/^{[\s\S]+}$/.test(msg)){
@@ -366,7 +380,7 @@ class Form{
      * @param elem
      */
     removeError(elem){
-        elem.classList.remove('form-item-check-error');
+        elem.classList.remove(this.conf.error_class);
         for (let i = 0; i < elem.parentNode.children.length; i++){
             if (elem.parentNode.children[i].classList.contains('form-item-check-error-msg'))
                 elem.parentNode.children[i].remove();
@@ -390,7 +404,11 @@ class Form{
                         return false;
                     }
                 }else{
-                    return elem.value;
+                    if(elem.type == 'number'){
+                        return Number(elem.value);
+                    }else{
+                        return elem.value;
+                    }
                 }
             case 'SELECT':
                 if (elem.name && elem.selectedIndex && elem.options[elem.selectedIndex]){
