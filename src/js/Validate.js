@@ -1,8 +1,8 @@
 /**
- * Created by PhpStorm.
- * @Author: 天上
- * @Time: 2020/7/23 0:02
- * @Email: 30191306465@qq.com
+ * Created by WebStorm.
+ * @Author: 芒果
+ * @Time: 2020/10/14 13:28
+ * @Email: m.zxt@foxmail.com
  */
 
 /**
@@ -34,7 +34,7 @@ class Validate {
     /**
      * 是否批量验证
      * @param {Boolean} is
-     * @returns {Validate}
+     * @returns {this}
      */
     batch(is){
 
@@ -45,7 +45,7 @@ class Validate {
      * 添加正则规则
      * @param data  规则名称或对象
      * @param val 正则表达式
-     * @returns {Validate}
+     * @returns {this}
      */
     regx(data,val){
         if (!val){
@@ -59,7 +59,7 @@ class Validate {
      * 附加验证规则
      * @param data 规则名称或对象
      * @param {Function|null|undefined} val
-     * @returns {Validate}
+     * @returns {this}
      */
     type(data,val){
         if (!val){
@@ -74,7 +74,7 @@ class Validate {
      * 添加字段提示文本
      * @param {Object|string} data 字段名称或者字段提示文本对象
      * @param val
-     * @returns {Validate}
+     * @returns {this}
      */
     message(data,val){
         if (!val){
@@ -89,7 +89,7 @@ class Validate {
      * 添加字段验证规则
      * @param {Object|string} rule 字段名称或者规则数组
      * @param val 验证规则
-     * @returns {Validate}
+     * @returns {this}
      */
     rule(rule,val){
 

@@ -4,12 +4,10 @@
 
 | 文件 | 说明 | 类别 | 
 | --- | --- | --- |
-| ./src/js/form.js | 表单验证类 | 核心 | 
-| ./src/js/validate.js | 验证器 | 核心 |
-| ./src/js/formSwitch.js | 实现表单Switch组件 | 演示 |
-| ./src/js/message.js | 消息弹窗 | 演示 |
+| ./src/js/FormValidate.js | 表单验证类 | 核心 | 
+| ./src/js/Validate.js | 验证器 | 核心 |
+| ./src/js/formData.js | 获取form数据 | 核心 |
 | ./src/css/from.css | 表单样式 | 演示 |
-| ./src/css/message.css | 消息弹窗样式 | 演示 |
 
 
 ### 开始

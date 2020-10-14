@@ -1,5 +1,6 @@
 
-import Form from "./js/form";
+import FormValidate from "./js/FormValidate";
 
 
-window.Form = Form;
+window.FormValidate = FormValidate;
+

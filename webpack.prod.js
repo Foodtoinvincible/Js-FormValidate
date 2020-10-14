@@ -13,7 +13,9 @@ module.exports =  {
     output: {
         filename: 'formValidate.min.js',
         path: path.resolve(__dirname, 'dist'),
-        publicPath: '/'
+        publicPath: '/',
+        // library:"Form",// 在全局变量中增加一个library变量
+        // libraryTarget:"umd"
     },
     module:{
         rules:[

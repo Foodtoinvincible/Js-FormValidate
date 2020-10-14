@@ -1,24 +1,20 @@
 
 // import lod from 'lodash';
 
-import Form from './js/form'
-import FormSwitch from './js/formSwitch';
-import Message from './js/message'
+import FormValidate from './js/FormValidate'
 
 import './css/form.css'
 
-FormSwitch.init();
-Message.setConfig({
-    background: true,
-    offset: 'center',
-})
-const form = new Form(document.getElementById('form'),(data,e,status) => {
+
+const $form = document.getElementById('form');
+
+const form = new FormValidate($form,(data,e,status) => {
     e.preventDefault();
     console.log(data)
     if (status){
-        Message.success('验证通过');
+        alert('验证通过');
     }else{
-        Message.info('验证失败');
+        alert('验证失败');
     }
     // ...
 });
