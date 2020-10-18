@@ -7,6 +7,7 @@
 
 import Validate from './Validate';
 import FormResult from './formData';
+import {inArray} from "./Util";
 
 /**
  * 表单验证
@@ -261,8 +262,8 @@ class FormValidate{
         let rule = errorInfo.split(' ')[0];
         for (let k in this._message){
             if (this._message.hasOwnProperty(k)){
-                if (this._validate.inArray(k.toString().split(','),field) ||
-                    this._validate.inArray(k.toString().split(','),field + '.' + rule)){
+                if (inArray(k.toString().split(','),field) ||
+                    inArray(k.toString().split(','),field + '.' + rule)){
                     return this._message[k];
                 }
             }

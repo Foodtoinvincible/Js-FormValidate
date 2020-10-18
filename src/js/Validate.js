@@ -5,6 +5,8 @@
  * @Email: m.zxt@foxmail.com
  */
 
+import {foreach, getVarType, inArray} from "./Util";
+
 /**
  * 验证器
  * Class
@@ -14,7 +16,7 @@ class Validate {
         this._message = {};
         this._rule = {};
         this._regx = {
-            mobile: '^[1][3,4,5,7,8][0-9]{9}$',
+            mobile: '^[1][34578][0-9]{9}$',
             email: '^[a-z0-9]+([._\\\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$'
         };
         this._error = {};
@@ -58,7 +60,7 @@ class Validate {
     /**
      * 附加验证规则
      * @param data 规则名称或对象
-     * @param {Function|null|undefined} val
+     * @param {Function} [val=null]
      * @returns {this}
      */
     type(data,val){
@@ -102,6 +104,27 @@ class Validate {
     };
 
     /**
+     * 获取错误信息
+     * @returns {{}}
+     */
+    getError(){
+        return this._error;
+    }
+
+    /**
+     * 清理
+     * @return {Validate}
+     */
+    clear(){
+        this._error = {};
+        this._batch = true;
+        this._message = {};
+        this._rule = {};
+        this._type = {};
+        return this;
+    }
+
+    /**
      * 验证
      * @param data
      * @param rules
@@ -112,120 +135,141 @@ class Validate {
         if (!rules){
             rules = this._rule;
         }
-        for (let key in rules){
-
-            if (!rules.hasOwnProperty(key)) continue;
-
-            let rule = rules[key];
-            let value = this.getInputData(key,data);
-
+        foreach(rules,(rule,field) => {
+            let value = this.getInputData(field,data);
             let result;
 
-            if (rules instanceof Function){
-                result = rules(value,rule,data);
+            if (rule instanceof Function){
+                result = rule(value,rule,data);
             }else{
-                result = this.checkItem(key,value,rule,data);
+                result = this.checkItem(field,value,rule,data);
             }
             if (result !== true){
                 if (this._batch){
-                    this._error[key] = result;
+                    this._error[field] = result;
                 }else{
                     this._error = result;
                     return false;
                 }
             }
-        }
+        });
         return this.empty(this._error);
-    }
-    /**
-     * 获取错误信息
-     * @returns {{}}
-     */
-    getError(){
-        return this._error;
-    }
-    /**
-     * 清理
-     */
-    clear(){
-        this._error = {};
-        this._batch = true;
-        this._message = {};
-        this._rule = {};
-        this._type = {};
     }
 
     /**
-     * 验证项
-     * @param field
-     * @param value
-     * @param rules
-     * @param data
+     * 单项验证
+     * @param {String} field 字段名称
+     * @param value 字段值
+     * @param {String|Array} rules 验证规则
+     * @param {Object} data  整体数据
      * @returns {boolean|string|*}
      */
     checkItem(field,value,rules,data){
 
-        if (typeof rules === 'string'){
+        if (getVarType(rules) == 'string'){
             rules = rules.split('|');
         }
-        for (let key in rules){
-            if (!rules.hasOwnProperty(key)) continue;
-            let rule = rules[key],
-                result,
-                info = key instanceof Number ? '' : key;
-            if (rule instanceof Function){
-                result = rule(value,field,data);
+        let result = true;
 
+        foreach(rules, (rule,key) => {
+            // 效验结果
+            let ruleName;
+
+            // 是否直接使用函数验证
+            if (getVarType(rule) == 'function'){
+                result = rule(value,field,data);
+                ruleName = getVarType(key) == 'number' ? '' : key;
             }else{
-                let tmp = this.getValidateType(key,rule);
-                info = tmp[2];
-                rule = tmp[1];
-                let type = tmp[0];
-                if (info === 'has' || 'require' === info || (value !== null && '' !== value)) {
-                    result = this[type](value,rule,data,field);
+                let validInfo = this.getValidateInfo(key,rule);
+                ruleName = validInfo.rule;
+                
+                if (ruleName == 'has' || 'require' == ruleName || (value !== null && value !== undefined && '' !== value)) {
+                    // validInfo.method = is 表示调用的是没有参数的内置规则
+                    if (validInfo.method == 'is'){
+                        result = this[validInfo.method](value,validInfo.rule,data,field);
+                    }else{
+                        result = this.callRuleMethod(validInfo.method,value,data,field,validInfo.params);
+                    }
                 } else {
                     result = true;
                 }
             }
-            if (!result){
-                return this.__getMsg(field,info);
+            if (result !== true){
+                // 支持从验证方法中返回验证失败信息
+                result = result === false ? this._getMsg(field,ruleName) : result;
+                return false;
             }
-        }
-        return true;
+        });
+        return result;
     }
 
     /**
-     * 获取验证类型
+     * 调用验证规则方法
+     * @param {String} name     方法名
+     * @param {*} value         被效验的值
+     * @param {Object} data     数据集合
+     * @param {String} field    被效验的字段
+     * @param {*} [params=null]        规则传参
+     * @return {Boolean|*}
+     */
+    callRuleMethod(name,value,data,field,params){
+        if (this._type[name]){
+            return this._type[name](value,params,data,field);
+        }else if (this[name]){
+            return this[name](value,params,data,field);
+        }else{
+            throw new Error('Validate: unknown rule method: ' + name);
+        }
+    }
+
+    /**
+     * 获取验证信息
      * @param key
      * @param rule
-     * @returns {[*, string, *|string]|[Number, *, Number]}
+     * @return {Object}
      */
-    getValidateType(key,rule){
+    getValidateInfo(key,rule){
 
-        if (key instanceof Number){
+        if (getVarType(key) != 'number'){
             // 别名
             if (this._alias[key]){
                 key = this._alias[key];
             }
-            return [key,rule,key];
+            return {
+                method: key,
+                params: rule,
+                rule: key,
+            };
         }
+        // type 是调用的函数
+        // info 是规则名称
         let type,info;
+        // 是否存在参数
         if (rule.indexOf(':') > 0){
             let tmp = rule.split(':',2);
             type = tmp[0];
+            // 别名
             if (this._alias[type])
                 type = this._alias[type];
             info = type;
+            // 有参数的情况下 rule 等于携带的参数
             rule = tmp[1];
-        }else if(this[rule] && this[rule] instanceof Function){
+        }else if(this[rule] && this[rule] instanceof Function || this._type[rule] && this._type[rule] instanceof Function){
+            // 直接调用方法
             type = rule;
             info = rule;
             rule  = '';
         }else{
+            // 内置规则
             type = 'is';
             info = rule;
+            rule = '';
         }
-        return [type,rule,info]
+        return {
+            method: type,
+            params: rule,
+            rule: info,
+        }
     }
 
     /**
@@ -238,17 +282,23 @@ class Validate {
     getInputData(key,data){
         key = key.toString();
         if(key.indexOf('.') < 1){
-            return data[key] ? data[key] :  null;
+            return data.hasOwnProperty(key) ? data[key] :  null;
         }
-        let name = key.split('.');
-        for (let i=0;i < name.length;i++){
-            if (data[name[i]] !== undefined && data[name[i]] !== null){
-                data = data[name[i]];
-            }else{
-                return null;
+        let keys = key.split('.');
+        let temp = data;
+        // 对象或数组才有搜索意义
+        while (keys.length && (temp instanceof Array || Object.prototype.toString.call(temp) == '[object Object]')){
+            let k = keys.shift();
+            if (temp[k]){
+                if (keys.length == 0){
+                    return temp[k];
+                }
+                else{
+                    temp = temp[k];
+                }
             }
         }
-        return data;
+        return null;
     }
 
     /**
@@ -257,19 +307,23 @@ class Validate {
      * @param rule
      * @returns {string|*}
      */
-    __getMsg(field,rule){
+    _getMsg(field,rule){
 
-        for (let k in this._message){
-            if (!this._message.hasOwnProperty(k)) continue;
-            let tmp = (k+'').split(',');
-            if (this.inArray(tmp,field) || this.inArray(tmp,field + '.' + rule)){
-                return this._message[k];
+        let info = rule + ' ' + field;
+        
+        foreach(this._message, (item,key) => {
+            let tmp = key.toString().split(',');
+            if (inArray(tmp,field) || inArray(tmp,field + '.' + rule)){
+                info = this._message[key];
+                // 跳出循环
+                return false;
             }
-        }
-        return rule + ' ' + field;
+        });
+        return info;
     }
 
     /**
+     * 内置规则（不需要参数的规则）
      * @param value 字段值
      * @param rule 验证规则
      * @param {Object} data 数据
@@ -290,12 +344,12 @@ class Validate {
                 break;
             case 'accepted':
                 // 接受
-                result = this.inArray(['1', 'on', 'yes',1],value,true);
+                result = inArray(['1', 'on', 'yes',1],value,true);
                 break;
             case 'boolean':
             case 'bool':
                 // 是否为布尔值
-                result = this.inArray([true, false, 0, 1, '0', '1'],value,true);
+                result = inArray([true, false, 0, 1, '0', '1'],value,true);
                 break;
             case 'number':
                 result = /^([-|+]?\d+|[-|+]?\d+\.\d+)$/.test(value + '');
@@ -340,23 +394,12 @@ class Validate {
                 result = /^[-|+]?\d+\.\d+$/.test(value);
                 break;
             default:
-                switch (true) {
-                    case rule instanceof Function:
-                        result = rule(value,rule,data,field);
-                        break;
-                    case this[rule] instanceof Function:
-                        result = this[rule](value,rule,data,field);
-                        break;
-                    case this._regx[rule] !== undefined:
-                        result = typeof this._regx[rule] === 'string' ? new RegExp(this._regx[rule]).test(value) : this._regx[rule].test(value);
-                        break;
-                    case this._type[rule] !== undefined:
-                        result = this._type[rule](value,rule,data,field);
-                        break;
-                    default:
-                        throw new Error(`validate rule not exits: ${rule}`);
+                if (this._regx.hasOwnProperty(rule)){
+                    result = typeof this._regx[rule] === 'string' ? new RegExp(this._regx[rule]).test(value) : this._regx[rule].test(value);
+                }else {
+                    // 没有找到不需要参数的规则内置
+                    return null;
                 }
-                break;
         }
         return result;
     }
@@ -368,19 +411,11 @@ class Validate {
      */
     empty(param){
 
-        // 是否为 undefined
-        if (typeof param ===  'undefined'){
+        if (!param){
             return true;
         }
-
         // 是否为空字符串
         if (typeof param === 'string' && param.trim() === ''){
-            return true;
-        }
-
-
-        // 是否为假
-        if (param === false){
             return true;
         }
 
@@ -388,118 +423,84 @@ class Validate {
         if (param instanceof Array && param.length === 0){
             return true;
         }
-
-        // 是否为 null
-        if (param ===  null){
-            return true;
-        }
-
-        // 是否为0
-        if (typeof param === 'number' && parseInt(param) === 0 && /\./.test(param.toString()) === false){
-            return true;
-        }
-
         // 是否为空对象
         return param instanceof Object && JSON.stringify (param) === '{}';
 
     }
 
     /**
-     * 判断值是否在数组中存在
-     * @param arr
-     * @param e
-     * @param t   是否强类型
-     * @returns {boolean}
-     */
-    inArray(arr,e,t){
-        for (let k in arr)
-            if (t){
-                if (arr[k] === e) return true;
-            }else{
-                if (arr[k] == e) return true;
-            }
-        return false;
-    }
-
-    /**
      * 大于等于
      * @param value
-     * @param rule
-     * @param data
+     * @param params
      * @returns {boolean}
      */
-    egt(value,rule,data){
-        return value >= this.getInputData(data,rule);
+    egt(value,params){
+        return value >= this._strToNumber(params);
     }
     /**
      * 大于
      * @param value
-     * @param rule
-     * @param data
+     * @param params
      * @returns {boolean}
      */
-    gt(value,rule,data){
-        return value > this.getInputData(data,rule);
+    gt(value,params){
+        return value > this._strToNumber(params);
     }
     /**
      * 等于
      * @param value
-     * @param rule
-     * @param data
+     * @param params
      * @returns {boolean}
      */
-    eq(value,rule,data){
-        return value == this.getInputData(data,rule);
+    eq(value,params){
+        return value == this._strToNumber(params);
     }
     /**
      * 小于
      * @param value
-     * @param rule
-     * @param data
+     * @param params
      * @returns {boolean}
      */
-    lt(value,rule,data){
-        return value < this.getInputData(data,rule);
+    lt(value,params){
+        return value < this._strToNumber(params);
     }
     /**
      * 小于等于
      * @param value
-     * @param rule
-     * @param data
+     * @param params
      * @returns {boolean}
      */
-    lte(value,rule,data){
-        return value <= this.getInputData(data,rule);
+    lte(value,params){
+        return value <= this._strToNumber(params);
     }
 
     /**
      * 不等于
      * @param value
-     * @param rule
-     * @param data
+     * @param params
      * @returns {boolean}
      */
-    unequal(value,rule,data){
-        return value != this.getInputData(data,rule);
+    unequal(value,params){
+        return value != this._strToNumber(params);
     }
 
     /**
      * 验证是否在范围内
      * @param value
-     * @param rule
+     * @param params
      * @returns {boolean}
      */
-    in(value,rule){
-        return rule instanceof Array ? this.inArray(rule,value) : this.inArray(rule.split(','),value);
+    in(value,params){
+        return params instanceof Array ? inArray(params,value) : inArray(params.toString().split(','),value);
     }
     /**
      * 验证是否不在范围内
      * @param value
-     * @param rule
+     * @param params
      * @returns {boolean}
      */
-    notIn(value,rule){
-        return !(rule instanceof Array ? this.inArray(rule,value) : this.inArray(rule.split(','),value));
+    notIn(value,params){
+        return !(params instanceof Array ? inArray(params,value) : inArray(params.toString().split(','),value));
     }
 
     /**
@@ -536,13 +537,13 @@ class Validate {
     /**
      * 数据长度验证
      * @param {String|Array|Object|Number} value
-     * @param rule
+     * @param params
      * @returns {boolean}
      */
-    length(value,rule){
+    length(value,params){
         let len = this.getDataLength(value);
-        if (typeof rule === 'string' && rule.indexOf(',') > 0){
-            let tmp = rule.split(',',2);
+        if (typeof params === 'string' && params.indexOf(',') > 0){
+            let tmp = params.split(',',2);
             return len >= tmp[0] && len <= tmp[1];
         }
         return value == len;
@@ -551,52 +552,51 @@ class Validate {
     /**
      * 范围
      * @param {String|Array|Object|Number} value
-     * @param rule
+     * @param params
      * @returns {boolean|boolean}
      */
-    between(value,rule){
+    between(value,params){
         let len = this.getDataLength(value);
-        if (typeof rule != 'string' || rule.indexOf(',') == -1){
+        if (typeof params != 'string' || params.indexOf(',') == -1){
             console.warn('Warning: Validate between rule error');
             return false;
         }
-        let tmp = rule.split(',',2);
+        let tmp = params.split(',',2);
         return len >= tmp[0] && len <= tmp[1];
     }
 
     /**
      * 最大值验证
      * @param {Number} value
-     * @param rule
+     * @param params
      * @returns {boolean}
      */
-    max(value,rule){
-        let ruleVal = this.strToNumber(rule);
+    max(value,params){
+        params = this._strToNumber(params);
 
-        if (ruleVal === false){
-            console.warn('Warning: Validate max rule value expect number given ' + this.getDataType(rule))
+        if (params === false){
+            console.warn('Warning: Validate max rule params type expect number given ' + getVarType(value))
             return false;
         }
-        if (this.strToNumber(value) === false)
+        if (this._strToNumber(value) === false)
             value = this.getDataLength(value);
-
-        return value <= ruleVal;
+        return value <= params;
     }
 
     /**
      * 最小值验证
      * @param {Number} value
-     * @param rule
+     * @param params
      * @returns {boolean}
      */
-    min(value,rule){
-        let ruleVal = this.strToNumber(rule);
-        if (ruleVal === false){
-            console.warn('Warning: Validate min rule value expect number given ' + this.getDataType(rule))
+    min(value,params){
+        params = this._strToNumber(params);
+        if (params === false){
+            console.warn('Warning: Validate min rule params expect number given ' + getVarType(rule))
         }
-        if (this.strToNumber(value) === false)
+        if (this._strToNumber(value) === false)
             value = this.getDataLength(value);
-        return value >= ruleVal;
+        return value >= params;
     }
 
     /**
@@ -604,7 +604,7 @@ class Validate {
      * @param str
      * @returns {boolean|number}
      */
-    strToNumber(str){
+    _strToNumber(str){
         let type = this.getDataType(str);
         if (type !== 'string' && type !== 'number')
             return false;
